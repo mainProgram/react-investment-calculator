@@ -1,22 +1,12 @@
-import {calculateInvestmentResults} from "../util/investment.js";
+import {calculateInvestmentResults, formatter} from "../util/investment.js";
 import {useState} from "react";
 
 export default function ResultTable({
-    initialInvestment,
-    annualInvestment,
-    expectedReturn,
-    duration
+    userInput
 }){
-    const resultObject = {
-        initialInvestment: initialInvestment,
-        annualInvestment: annualInvestment,
-        expectedReturn: expectedReturn,
-        duration: duration,
-    }
 
-    const r = calculateInvestmentResults(resultObject)
-    const [results, setResults] = useState([...r]);
-    console.log(results)
+    const results = calculateInvestmentResults(userInput)
+    const initialInvest = results[0].valueEndOfYear - results[0].interest - results[0].annualInvestment
 
     return (
         <table id="result" className="center">
@@ -30,13 +20,18 @@ export default function ResultTable({
                 </tr>
             </thead>
             <tbody>
-                {results.map((result, pos) =>
-                    <tr key={pos}>
-                        <td>{result.year}</td>
-                        <td>{result.interest}</td>
-                        <td>{result.valueEndOfYear}</td>
-                        <td>{result.annualInvestment}</td>
-                    </tr>
+                {results.map((result, pos) =>  {
+                    const totalInterest = result.valueEndOfYear - result.annualInvestment * result.year - initialInvest
+                    const totalAmountInvested = result.valueEndOfYear - totalInterest
+                    return (
+                        <tr key={result.year}>
+                            <td>{result.year}</td>
+                            <td>{formatter.format(result.valueEndOfYear)}</td>
+                            <td>{formatter.format(result.interest)}</td>
+                            <td>{formatter.format(totalInterest)}</td>
+                            <td>{formatter.format(totalAmountInvested)}</td>
+                        </tr>
+                    )}
                 )}
             </tbody>
         </table>
